@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: web-set
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - list:
+        elements:
+          - { env: dev }
+          - { env: prod }
+  template:
+    metadata:
+      name: 'asweb-{{.env}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/argoproj/argocd-example-apps.git
+        targetRevision: HEAD
+        path: guestbook
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: 'asweb-{{.env}}'
+      syncPolicy:
+        automated: { prune: true, selfHeal: true }
+        syncOptions: ["CreateNamespace=true"]

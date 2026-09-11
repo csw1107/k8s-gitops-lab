@@ -1,0 +1,4 @@
+replicaCount: 1
+args:
+  - --log
+  - --verbose

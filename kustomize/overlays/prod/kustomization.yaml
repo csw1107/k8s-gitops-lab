@@ -1,0 +1,6 @@
+resources:
+  - ../../base
+  - ingress.yaml
+patches:
+  - path: replicas.yaml
+    target: { kind: Deployment, name: web }

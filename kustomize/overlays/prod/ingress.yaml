@@ -1,0 +1,14 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata: { name: web }
+spec:
+  rules:
+    - host: "prod.kopoctc.kr"        # ← 주소가 비어있음! (prod는 host가 필요한데 비었음)
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web
+                port: { number: 80 }

@@ -1,0 +1,78 @@
+# ArgoCD nil-map 패닉 재발 방지용 LimitRange (defaultRequest)
+# ----------------------------------------------------------------------------
+# 목적: requests 가 선언되지 않은 Pod 이 ArgoCD v3.4.4 application-controller
+#       패닉(nil map)을 유발하는 것을 막는다. LimitRange 의 type: Container
+#       defaultRequest 는 admission 단계에서 Pod spec.containers[].resources.requests
+#       를 자동 채워주므로, "spec.requests == null" 트리거 조건 자체가 사라진다.
+#
+# 적용 시점(나중에 시간 될 때, 한 번에):
+#   kubectl apply -f argocd-panic-prevention-limitranges.yaml
+#
+# 적용 대상 네임스페이스: argocd, default, external-secrets, dev, test
+#   (kube-system 은 시스템 Pod 에 영향을 주지 않도록 의도적으로 제외)
+#
+# 주의사항:
+#   - 이미 떠 있는 BestEffort Pod 에는 소급 적용되지 않는다. (새로 생성되는 Pod 부터)
+#   - default(limit) 은 넣지 않았다 → CPU/메모리 상한 강제가 아니므로 기존 워크로드 영향 최소.
+#   - 값(cpu:50m, memory:128Mi)은 이 클러스터 호스트가 status 에 할당하던 기본값과 동일.
+#   - 특정 네임스페이스만 적용하고 싶으면 아래 해당 블록만 남기면 됨.
+# ----------------------------------------------------------------------------
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: argocd-panic-prevention-default-request
+  namespace: argocd
+spec:
+  limits:
+    - type: Container
+      defaultRequest:
+        cpu: 50m
+        memory: 128Mi
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: argocd-panic-prevention-default-request
+  namespace: default
+spec:
+  limits:
+    - type: Container
+      defaultRequest:
+        cpu: 50m
+        memory: 128Mi
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: argocd-panic-prevention-default-request
+  namespace: external-secrets
+spec:
+  limits:
+    - type: Container
+      defaultRequest:
+        cpu: 50m
+        memory: 128Mi
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: argocd-panic-prevention-default-request
+  namespace: dev
+spec:
+  limits:
+    - type: Container
+      defaultRequest:
+        cpu: 50m
+        memory: 128Mi
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: argocd-panic-prevention-default-request
+  namespace: test
+spec:
+  limits:
+    - type: Container
+      defaultRequest:
+        cpu: 50m
+        memory: 128Mi
